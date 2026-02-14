@@ -1,34 +1,22 @@
 const express = require("express");
 const app = express();
-
 const PORT = process.env.PORT || 3000;
-const students = [
-  { id: 1, name: "Sitthikorn" },
-  { id: 2, name: "Preenapa" },
-  { id: 3, name: "Napapach" },
-];
 
-const student2 = [
-  { id: 1, name: "Tum" },
-  { id: 2, name: "Su" },
-  { id: 3, name: "title" },
-];
-
-const schools = { samchukratana: students, ratchmonkol: student2 };
+// Retrieve data from data.js
+const db = require("./db");
 
 app.get("/", function (req, res) {
-  res.send(students);
+  res.send(db.students1); // เรียกใช้ผ่านตัวแปร db ที่เรา require มา
 });
 
 app.get("/api/:schools", (req, res) => {
-  const schools = req.params.schools.toLowerCase();
+  const schoolsName = req.params.schools.toLowerCase();
+  const data = db.schools[schoolsName]; // // เข้าถึงข้อมูลโรงเรียนจาก dn
 
-  if (schools == "samchukratana") {
-    res.send(students);
-  } else if (schools == "ratchmonkol") {
-    res.send(student2);
+  if (data) {
+    res.send(data);
   } else {
-    res.send("Not found any schools");
+    res.status(404).send("School Not Found");
   }
 });
 
@@ -58,15 +46,14 @@ app.get("/api/students/:id", function (req, res) {
 });
 */
 
-
 app.get("/api/:school/:id", (req, res) => {
   const id = req.params.id;
   const schoolName = req.params.school.toLowerCase();
 
-  if (!schools[schoolName]) {
+  if (!db.schools[schoolName]) {
     res.send("School Not Found");
-  } else if (schools[schoolName][id - 1]) {
-    res.send(schools[schoolName][id - 1]);
+  } else if (db.schools[schoolName][id - 1]) {
+    res.send(db.schools[schoolName][id - 1]);
   } else {
     res.send(`Not Found students for id${id}`);
   }
